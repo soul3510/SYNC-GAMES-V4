@@ -26,6 +26,7 @@ public class Sync {
     private static final String gridURL = "http://localhost:4444/"; //desktop
     public static String db = "u204686394_mishakim"; //REMOTE
     protected static ThreadLocal<RemoteWebDriver> driverContainer = new ThreadLocal<>();
+
     protected static boolean ENV_TO_TEST = false; //Change to false for local test
     protected static Connection conn = null;
 
@@ -89,12 +90,14 @@ public class Sync {
                 LoggingPreferences logPrefs = new LoggingPreferences();
                 logPrefs.enable(LogType.BROWSER, Level.INFO);
                 logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
+                chromeOptions.setCapability("goog:loggingPrefs", logPrefs.toJson());
                 driverContainer.set(new ChromeDriver(chromeOptions));
 
             } else {
                 LoggingPreferences logPrefs = new LoggingPreferences();
                 logPrefs.enable(LogType.BROWSER, Level.INFO);
                 logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
+                chromeOptions.setCapability("goog:loggingPrefs", logPrefs.toJson());
                 driverContainer.set(new RemoteWebDriver(new URL(gridURL), chromeOptions));
             }
             driverContainer.get().manage().window().maximize();
