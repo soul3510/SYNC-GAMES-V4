@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="WEB UI REGRESSION TESTS">
+
+
+
+
+    <test name="ALL TESTS">
+        <classes>
+            <class name="tests.Sync"></class>
+        </classes>
+    </test>
+
+
+
+
+
+
+
+
+
+
+</suite>
