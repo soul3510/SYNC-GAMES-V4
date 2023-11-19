@@ -34,7 +34,7 @@ public class EmailSender {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress("soul3510@gmail.com"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("soul3510@gmail.com"));
-            message.setSubject("SYNC-GAMES-V4 finished running");
+            message.setSubject(emailSubject);
 
             LocalDateTime currentDateTime = LocalDateTime.now();
 
