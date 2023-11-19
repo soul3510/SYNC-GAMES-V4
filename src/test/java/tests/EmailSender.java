@@ -42,8 +42,7 @@ public class EmailSender {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
             String formattedDateTime = currentDateTime.format(formatter);
 
-            message.setText("SYNC-GAMES-V4 finished running at: " + formattedDateTime);
-            message.setText(bodyEmailMessage);
+            message.setText("SYNC-GAMES-V4 finished running at: " + formattedDateTime + ", " + bodyEmailMessage);
 
             Transport.send(message);
 
