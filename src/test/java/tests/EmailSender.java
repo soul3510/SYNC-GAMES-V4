@@ -11,7 +11,7 @@ import javax.mail.*;
 import javax.mail.internet.*;
 
 public class EmailSender {
-    public static void sendEmail() throws Exception {
+    public static void sendEmail(String bodyEmailMessage, String emailSubject) throws Exception {
         ReadConfig readConfig = new ReadConfig();
         Map<String, Object> config = readConfig.parseJsonToObject();
 
@@ -43,6 +43,7 @@ public class EmailSender {
             String formattedDateTime = currentDateTime.format(formatter);
 
             message.setText("SYNC-GAMES-V4 finished running at: " + formattedDateTime);
+            message.setText(bodyEmailMessage);
 
             Transport.send(message);
 

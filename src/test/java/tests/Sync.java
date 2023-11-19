@@ -33,26 +33,39 @@ public class Sync {
 
     @Test()
     public static void sync() throws Exception {
-        List<Integer> increaseDayBy = new ArrayList<>();
-        increaseDayBy.add(0);
-        increaseDayBy.add(1);
-        increaseDayBy.add(2);
-        increaseDayBy.add(3);
-        increaseDayBy.add(4);
-        increaseDayBy.add(5);
-        increaseDayBy.add(6);
+        boolean passed = true;
+        String errorMessage = null;
+        try {
+            List<Integer> increaseDayBy = new ArrayList<>();
+            increaseDayBy.add(0);
+            increaseDayBy.add(1);
+            increaseDayBy.add(2);
+            increaseDayBy.add(3);
+            increaseDayBy.add(4);
+            increaseDayBy.add(5);
+            increaseDayBy.add(6);
 
-        List<String> xpathIndex = new ArrayList<>();
-        xpathIndex.add("1");
-        xpathIndex.add("2");
-        xpathIndex.add("3");
-        xpathIndex.add("4");
-        xpathIndex.add("5");
-        xpathIndex.add("6");
-        xpathIndex.add("7");
+            List<String> xpathIndex = new ArrayList<>();
+            xpathIndex.add("1");
+            xpathIndex.add("2");
+            xpathIndex.add("3");
+            xpathIndex.add("4");
+            xpathIndex.add("5");
+            xpathIndex.add("6");
+            xpathIndex.add("7");
 
-        for (int i = 0; i < increaseDayBy.size(); i++) {
-            scanGames(increaseDayBy.get(i), xpathIndex.get(i));
+            for (int i = 0; i < increaseDayBy.size(); i++) {
+                scanGames(increaseDayBy.get(i), xpathIndex.get(i));
+            }
+        } catch (Exception e) {
+            passed = false;
+             errorMessage = e.getMessage();
+        }
+
+        if (passed) {
+            EmailSender.sendEmail("Sync passed", "SYNC-GAMES-V4 finished running - PASSED");
+        } else {
+            EmailSender.sendEmail("Sync failed\n " + errorMessage, "SYNC-GAMES-V4 finished running - FAILED");
         }
 
     }
@@ -294,10 +307,6 @@ public class Sync {
         }
         driverContainer.get().close();
         driverContainer.get().quit();
-
-
-        //Send email
-        EmailSender.sendEmail();
     }
 
     public static Date convertStringToDate(String time) throws Exception {
