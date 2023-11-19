@@ -294,6 +294,10 @@ public class Sync {
         }
         driverContainer.get().close();
         driverContainer.get().quit();
+
+
+        //Send email
+        EmailSender.sendEmail();
     }
 
     public static Date convertStringToDate(String time) throws Exception {
