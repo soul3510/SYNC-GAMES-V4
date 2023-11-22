@@ -93,7 +93,7 @@ public class Sync {
             chromeOptions.addArguments("--start-maximized");
             chromeOptions.addArguments("--log-level=3");
             chromeOptions.addArguments("--silent");
-            chromeOptions.addArguments("--headless");
+//            chromeOptions.addArguments("--headless");
             chromeOptions.addArguments("--no-sandbox");
             chromeOptions.addArguments("--disable-dev-shm-usage");
             chromeOptions.addArguments("--remote-allow-origins=*");
