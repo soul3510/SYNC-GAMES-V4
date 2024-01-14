@@ -1,4 +1,4 @@
-package tests;
+package tests.games;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Sync {
+public class SyncMaccabiHaifaGames {
 
     private static String completeDate;
     private static final String gridURL = "http://localhost:4444/"; //desktop
@@ -32,45 +32,11 @@ public class Sync {
 
 
     @Test()
-    public static void sync() throws Exception {
-        boolean passed = true;
-        String errorMessage = null;
-        try {
-            List<Integer> increaseDayBy = new ArrayList<>();
-            increaseDayBy.add(0);
-            increaseDayBy.add(1);
-            increaseDayBy.add(2);
-            increaseDayBy.add(3);
-            increaseDayBy.add(4);
-            increaseDayBy.add(5);
-            increaseDayBy.add(6);
-
-            List<String> xpathIndex = new ArrayList<>();
-            xpathIndex.add("1");
-            xpathIndex.add("2");
-            xpathIndex.add("3");
-            xpathIndex.add("4");
-            xpathIndex.add("5");
-            xpathIndex.add("6");
-            xpathIndex.add("7");
-
-            for (int i = 0; i < increaseDayBy.size(); i++) {
-                scanGames(increaseDayBy.get(i), xpathIndex.get(i));
-            }
-        } catch (Exception e) {
-            passed = false;
-             errorMessage = e.getMessage();
-        }
-
-        if (passed) {
-            EmailSender.sendEmail("Sync passed", "SYNC-GAMES-V4 finished running - PASSED");
-        } else {
-            EmailSender.sendEmail("Sync failed\n " + errorMessage, "SYNC-GAMES-V4 finished running - FAILED");
-        }
-
+    public static void syncMaccabiHaifa() throws Exception {
+        scanGames();
     }
 
-    public static void scanGames(int increaseDayBy, String xpathIndex) throws Exception {
+    public static void scanGames() throws Exception {
         try {
             WebDriverManager.chromedriver().setup();
             /**
@@ -122,190 +88,84 @@ public class Sync {
 
         RemoteWebDriver driver = driverContainer.get();
 
-        driver.get("https://www.telesport.co.il/%D7%A9%D7%99%D7%93%D7%95%D7%A8%D7%99%20%D7%A1%D7%A4%D7%95%D7%A8%D7%98");
-
-        //First get the day on screen:
-        String pageDate1 = driver.findElement(By.className("current")).getText(); //  01/12/22
-        String pageDateIncreased1 = add1Day(pageDate1, increaseDayBy, "dd/MM/yy");
-
-        String pageDate2 = pageDate1.replace("/22", "/2022").replace("/23", "/2023"); //  01/12/2022
-        String pageDateIncreased2 = add1Day(pageDate2, increaseDayBy, "dd/MM/yyyy");
-
-        mysqlConnect();
-
-        //First delete all the past records of last week
-        String yesterday = remove1day(pageDate2, "dd/MM/yyyy");
-        executeUpdate("DELETE from `" + db + "`.`games` where game_date = '" + yesterday + "'");
+        driver.get("https://mhaifafc.com/historySearch?cYearComp=1959&CompId=2&lang=he&cMode=COMP#results");
 
 
-        //Click on the date
-        try {
-            driver.findElement(By.linkText(pageDateIncreased1)).click();
-//            driver.findElement(By.xpath("//*[text()='" + pageDateIncreased1 + "']")).click();
-        } catch (Exception e) {
-            System.out.println(pageDateIncreased1 + " wasn't found.");
-            throw new Exception(pageDateIncreased1 + " wasn't found. Opps we have a problem.");
+        //Dates:
+        List<WebElement> dates = driver.findElements(By.xpath("//tr[@class='data_row youth']//td[2]"));
+
+        for (int i = 0; i < dates.size(); i++) {
+            System.out.println(dates.get(i).getText());
         }
-
-        //day of the week:
-        int day_int = getDayNumberOld(pageDateIncreased2, "dd/MM/yyyy");
-        String day = null;
-        switch (day_int) {
-            case 1:
-                day = "sunday";
-                break;
-            case 2:
-                day = "monday";
-                break;
-            case 3:
-                day = "tuesday";
-                break;
-            case 4:
-                day = "wednesday";
-                break;
-            case 5:
-                day = "thursday";
-                break;
-            case 6:
-                day = "friday";
-                break;
-            case 7:
-                day = "saturday";
-                break;
-        }
+        System.out.println("\n\n\n");
 
 
-        //Delete all records for this day
-        executeUpdate("DELETE from `" + db + "`.`games` where day = '" + day + "'");
+        //האם משחק חוץ
+        List<WebElement> team1 = driver.findElements(By.xpath("//tr[@class='data_row youth']//td[3]"));
+        List<WebElement> team2 = driver.findElements(By.xpath("//tr[@class='data_row youth']//td[4]"));
 
-
-        List<WebElement> channels = driver.findElements(By.xpath("//div[@id='bigContext']/div[1]/div[" + xpathIndex + "]/div/div[2]")); //Need to remove first object
-        List<WebElement> games = driver.findElements(By.xpath("//div[@id='bigContext']/div[1]/div[" + xpathIndex + "]/div/div[4]"));
-        List<WebElement> times = driver.findElements(By.xpath("//div[@id='bigContext']/div[1]/div[" + xpathIndex + "]/div/div[3]")); //Need to remove first object
-
-        try {
-            channels.remove(0);
-        } catch (Exception e) {
-            throw new Exception("Opps we have a problem. ");
-        }
-        times.remove(0);
-
-
-        for (int i = 0; i < games.size(); i++) {
-            System.out.println(channels.get(i).getText());
-            System.out.println(games.get(i).getText());
-            System.out.println(times.get(i).getText());
-
-
-            String value = games.get(i).getText();
-
-            if (value.contains("כדורגל")) {
-                if (value.contains("ישראל") || value.contains("הכוכב האדום") || value.contains("ריאל מדריד") || value.contains("מכבי חיפה") || value.contains("מכבי תל אביב") || value.contains("הפועל תל אביב") || value.contains("ברצלונה")) {
-                    //increase time by 1 hour
-                    Date newTime = convertStringToDate(times.get(i).getText());
-                    String time_end = add1Hour(newTime, 2);
-
-                    //trim game name
-                    String game_name_trim = games.get(i).getText().replace("'", "").replace("\"", "");
-
-                    //Convert date to ISO format for web:
-                    String isoFormat_start = getIsoFormat_start(pageDateIncreased2, times.get(i).getText());
-                    String isoFormat_end = getIsoFormat_end(isoFormat_start);
-
-                    //First see if record already saved:
-                    try {
-                        List<String> id = executeSelectQuery("SELECT * FROM `u204686394_mishakim`.`games` where game_name = '" + game_name_trim + "' and game_date = '" + pageDateIncreased2 + "' and time = '" + times.get(i).getText() + "'", "id");
-                        if (id.size() == 0) {
-                            System.out.println("Record not exists");
-
-                            executeUpdate("INSERT INTO `" + db + "`.`games`" +
-                                    "(\n" +
-                                    "`game_date`,\n" +
-                                    "`cal_start`,\n" +
-                                    "`cal_end`,\n" +
-                                    "`time`,\n" +
-                                    "`channel`,\n" +
-                                    "`game_name`,\n" +
-                                    "`color`,\n" +
-                                    "`day`,\n" +
-                                    "`isoFormat_start`,\n" +
-                                    "`isoFormat_end`)\n" +
-                                    "VALUES\n" +
-                                    "(\n" +
-                                    "'" + pageDateIncreased2 + "',\n" +
-                                    "'" + pageDateIncreased2 + " " + times.get(i).getText() + "',\n" +
-                                    "'" + pageDateIncreased2 + " " + time_end + "',\n" +
-                                    "'" + times.get(i).getText() + "',\n" +
-                                    "'" + channels.get(i).getText() + "',\n" +
-                                    "'" + game_name_trim + "',\n" +
-                                    "'white',\n" +
-                                    "'" + day + "',\n" +
-                                    "'" + isoFormat_start + "',\n" +
-                                    "'" + isoFormat_end + "');");
-
-                        } else {
-                            System.out.println("Record already exists");
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-
-
-            if (value.contains("כדורסל")) {
-                if (value.contains("מכבי תל אביב") || value.contains("הפועל ירושלים") || value.contains("ישראל")) {
-                    //increase time by 1 hour
-                    Date newTime = convertStringToDate(times.get(i).getText());
-                    String time_end = add1Hour(newTime, 2);
-
-                    //trim game name
-                    String game_name_trim = games.get(i).getText().replace("'", "").replace("\"", "");
-
-                    //Convert date to ISO format for web:
-                    String isoFormat_start = getIsoFormat_start(pageDateIncreased2, times.get(i).getText());
-                    String isoFormat_end = getIsoFormat_end(isoFormat_start);
-
-                    //First see if record already saved:
-                    try {
-                        List<String> id = executeSelectQuery("SELECT * FROM `u204686394_mishakim`.`games` where game_name = '" + game_name_trim + "' and game_date = '" + pageDateIncreased2 + "' and time = '" + times.get(i).getText() + "'", "id");
-                        if (id.size() == 0) {
-                            System.out.println("Record not exists");
-
-                            executeUpdate("INSERT INTO `" + db + "`.`games`" +
-                                    "(\n" +
-                                    "`game_date`,\n" +
-                                    "`cal_start`,\n" +
-                                    "`cal_end`,\n" +
-                                    "`time`,\n" +
-                                    "`channel`,\n" +
-                                    "`game_name`,\n" +
-                                    "`color`,\n" +
-                                    "`day`,\n" +
-                                    "`isoFormat_start`,\n" +
-                                    "`isoFormat_end`)\n" +
-                                    "VALUES\n" +
-                                    "(\n" +
-                                    "'" + pageDateIncreased2 + "',\n" +
-                                    "'" + pageDateIncreased2 + " " + times.get(i).getText() + "',\n" +
-                                    "'" + pageDateIncreased2 + " " + time_end + "',\n" +
-                                    "'" + times.get(i).getText() + "',\n" +
-                                    "'" + channels.get(i).getText() + "',\n" +
-                                    "'" + game_name_trim + "',\n" +
-                                    "'white',\n" +
-                                    "'" + day + "',\n" +
-                                    "'" + isoFormat_start + "',\n" +
-                                    "'" + isoFormat_end + "');");
-
-                        } else {
-                            System.out.println("Record already exists");
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+        for (int i = 0; i < team1.size(); i++) {
+            String value = team1.get(i).getText();
+            if (team1.get(i).getText().equals("מכבי חיפה")) {
+                System.out.println("FALSE");
+            } else {
+                System.out.println("TRUE");
             }
         }
+        System.out.println("\n\n\n");
+
+        for (int i = 0; i < team1.size(); i++) {
+            if (team1.get(i).getText().equals("מכבי חיפה")) {
+                System.out.println(team2.get(i).getText());
+            } else {
+                System.out.println(team1.get(i).getText());
+            }
+        }
+        System.out.println("\n\n\n");
+
+        List<WebElement> score = driver.findElements(By.xpath("//tr[@class='data_row youth']//td[5]"));
+
+        //score right
+        System.out.println("Maccabi Haifa score: ");
+        for (int i = 0; i < score.size(); i++) {
+            // Split the string based on ":"
+            String scoreMaccabiHaifa = score.get(i).getText(); //the right one
+            String[] parts = scoreMaccabiHaifa.split(":");
+
+            if (team1.get(i).getText().equals("מכבי חיפה")) {
+                // Extract the second (right) number
+                String rightNumber = parts[1].trim();
+                System.out.println(rightNumber);
+            }else  if (team2.get(i).getText().equals("מכבי חיפה")) {
+                // Extract the second (left) number
+                String leftNumber = parts[0].trim();
+                System.out.println(leftNumber);
+            }
+        }
+        System.out.println("\n\n\n");
+
+
+        //score left
+        System.out.println("Opponent score: ");
+        for (int i = 0; i < score.size(); i++) {
+            // Split the string based on ":"
+            String scoreMaccabiHaifa = score.get(i).getText(); //the right one
+            String[] parts = scoreMaccabiHaifa.split(":");
+
+            if (!team1.get(i).getText().equals("מכבי חיפה")) {
+                // Extract the second (right) number
+                String rightNumber = parts[1].trim();
+                System.out.println(rightNumber);
+            }else  if (!team2.get(i).getText().equals("מכבי חיפה")) {
+                // Extract the second (left) number
+                String leftNumber = parts[0].trim();
+                System.out.println(leftNumber);
+            }
+        }
+        System.out.println("\n\n\n");
+
+
+
         driverContainer.get().close();
         driverContainer.get().quit();
     }

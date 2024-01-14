@@ -7,7 +7,7 @@
 
     <test name="ALL TESTS">
         <classes>
-            <class name="tests.Sync"></class>
+            <class name="tests.SyncGamesForApplication"></class>
         </classes>
     </test>
 
