@@ -84,37 +84,68 @@ public class SyncGamesForApplication {
              * End of Get read of selenium and chrome logs
              */
 
-            ChromeOptions chromeOptions = new ChromeOptions();
+
+
+            String chromedriverVersion = "122"; //Change it when Chrome version on local machine changes.
+            System.setProperty("webdriver.chrome.driver", "C:\\Users\\Eyal Sooliman\\Desktop\\SELENIUM 4 CONFIGURATION HUB AND NODE\\hub\\"+chromedriverVersion+"\\chromedriver-win64\\chromedriver.exe");
+
+            // Set Chrome preferences
             HashMap<String, Object> chromePref = new HashMap<>();
-
-
             chromePref.put("credentials_enable_service", false);
             chromePref.put("profile.password_manager_enabled", false);
-            chromeOptions.addArguments("--start-maximized");
-            chromeOptions.addArguments("--log-level=3");
-            chromeOptions.addArguments("--silent");
-//            chromeOptions.addArguments("--headless");
-            chromeOptions.addArguments("--no-sandbox");
-            chromeOptions.addArguments("--disable-dev-shm-usage");
-            chromeOptions.addArguments("--remote-allow-origins=*");
-            chromeOptions.setExperimentalOption("excludeSwitches", Arrays.asList("enable-automation"));
+
+            // Set ChromeOptions
+            ChromeOptions chromeOptions = new ChromeOptions();
+            chromeOptions.addArguments("--start-maximized", "--log-level=3", "--silent", "--no-sandbox", "--disable-dev-shm-usage", "--remote-allow-origins=*");
+            chromeOptions.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
             chromeOptions.setExperimentalOption("prefs", chromePref);
 
-            if (ENV_TO_TEST) {
-                LoggingPreferences logPrefs = new LoggingPreferences();
-                logPrefs.enable(LogType.BROWSER, Level.INFO);
-                logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
-                chromeOptions.setCapability("goog:loggingPrefs", logPrefs.toJson());
-                driverContainer.set(new ChromeDriver(chromeOptions));
+            // Create a WebDriver instance with ChromeOptions
+            RemoteWebDriver driver = new ChromeDriver(chromeOptions);
 
-            } else {
-                LoggingPreferences logPrefs = new LoggingPreferences();
-                logPrefs.enable(LogType.BROWSER, Level.INFO);
-                logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
-                chromeOptions.setCapability("goog:loggingPrefs", logPrefs.toJson());
-                driverContainer.set(new RemoteWebDriver(new URL(gridURL), chromeOptions));
-            }
-            driverContainer.get().manage().window().maximize();
+            // Maximize browser window
+            driver.manage().window().maximize();
+
+            // Set WebDriver instance to a container or variable
+            driverContainer.set(driver);
+
+
+//            ChromeOptions chromeOptions = new ChromeOptions();
+//            HashMap<String, Object> chromePref = new HashMap<>();
+//
+//
+//            chromePref.put("credentials_enable_service", false);
+//            chromePref.put("profile.password_manager_enabled", false);
+//            chromeOptions.addArguments("--start-maximized");
+//            chromeOptions.addArguments("--log-level=3");
+//            chromeOptions.addArguments("--silent");
+////            chromeOptions.addArguments("--headless");
+//            chromeOptions.addArguments("--no-sandbox");
+//            chromeOptions.addArguments("--disable-dev-shm-usage");
+//            chromeOptions.addArguments("--remote-allow-origins=*");
+//            chromeOptions.setExperimentalOption("excludeSwitches", Arrays.asList("enable-automation"));
+//            chromeOptions.setExperimentalOption("prefs", chromePref);
+
+
+
+
+
+
+//            if (ENV_TO_TEST) {
+//                LoggingPreferences logPrefs = new LoggingPreferences();
+//                logPrefs.enable(LogType.BROWSER, Level.INFO);
+//                logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
+//                chromeOptions.setCapability("goog:loggingPrefs", logPrefs.toJson());
+//                driverContainer.set(new ChromeDriver(chromeOptions));
+//
+//            } else {
+//                LoggingPreferences logPrefs = new LoggingPreferences();
+//                logPrefs.enable(LogType.BROWSER, Level.INFO);
+//                logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
+//                chromeOptions.setCapability("goog:loggingPrefs", logPrefs.toJson());
+//                driverContainer.set(new RemoteWebDriver(new URL(gridURL), chromeOptions));
+//            }
+//            driverContainer.get().manage().window().maximize();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
