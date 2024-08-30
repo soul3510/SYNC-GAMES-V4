@@ -9,8 +9,13 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
+import org.testng.xml.XmlTest;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.*;
 import java.text.ParseException;
@@ -22,14 +27,12 @@ import java.util.logging.Logger;
 
 public class SyncGamesForApplication {
 
-    private static String completeDate;
     private static final String gridURL = "http://localhost:4444/"; //desktop
     public static String db = "u204686394_mishakim"; //REMOTE
-    protected static ThreadLocal<RemoteWebDriver> driverContainer = new ThreadLocal<>();
-
+    protected static RemoteWebDriver driver;
     protected static boolean ENV_TO_TEST = false; //Change to false for local test
     protected static Connection conn = null;
-
+    private static String completeDate;
 
     @Test()
     public static void sync() throws Exception {
@@ -59,7 +62,7 @@ public class SyncGamesForApplication {
             }
         } catch (Exception e) {
             passed = false;
-             errorMessage = e.getMessage();
+            errorMessage = e.getMessage();
         }
 
         if (passed) {
@@ -72,86 +75,10 @@ public class SyncGamesForApplication {
 
     public static void scanGames(int increaseDayBy, String xpathIndex) throws Exception {
         try {
-            WebDriverManager.chromedriver().setup();
-            /**
-             * Get read of selenium and chrome logs
-             */
-            System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
-            System.setProperty("webdriver.chrome.silentOutput", "true");
-            Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
-            System.setProperty(ChromeDriverService.CHROME_DRIVER_SILENT_OUTPUT_PROPERTY, "true");
-            /**
-             * End of Get read of selenium and chrome logs
-             */
-
-
-
-            String chromedriverVersion = "122"; //Change it when Chrome version on local machine changes.
-            System.setProperty("webdriver.chrome.driver", "C:\\Users\\Eyal Sooliman\\Desktop\\SELENIUM 4 CONFIGURATION HUB AND NODE\\hub\\"+chromedriverVersion+"\\chromedriver-win64\\chromedriver.exe");
-
-            // Set Chrome preferences
-            HashMap<String, Object> chromePref = new HashMap<>();
-            chromePref.put("credentials_enable_service", false);
-            chromePref.put("profile.password_manager_enabled", false);
-
-            // Set ChromeOptions
-            ChromeOptions chromeOptions = new ChromeOptions();
-            chromeOptions.addArguments("--start-maximized", "--log-level=3", "--silent", "--no-sandbox", "--disable-dev-shm-usage", "--remote-allow-origins=*");
-            chromeOptions.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
-            chromeOptions.setExperimentalOption("prefs", chromePref);
-
-            // Create a WebDriver instance with ChromeOptions
-            RemoteWebDriver driver = new ChromeDriver(chromeOptions);
-
-            // Maximize browser window
-            driver.manage().window().maximize();
-
-            // Set WebDriver instance to a container or variable
-            driverContainer.set(driver);
-
-
-//            ChromeOptions chromeOptions = new ChromeOptions();
-//            HashMap<String, Object> chromePref = new HashMap<>();
-//
-//
-//            chromePref.put("credentials_enable_service", false);
-//            chromePref.put("profile.password_manager_enabled", false);
-//            chromeOptions.addArguments("--start-maximized");
-//            chromeOptions.addArguments("--log-level=3");
-//            chromeOptions.addArguments("--silent");
-////            chromeOptions.addArguments("--headless");
-//            chromeOptions.addArguments("--no-sandbox");
-//            chromeOptions.addArguments("--disable-dev-shm-usage");
-//            chromeOptions.addArguments("--remote-allow-origins=*");
-//            chromeOptions.setExperimentalOption("excludeSwitches", Arrays.asList("enable-automation"));
-//            chromeOptions.setExperimentalOption("prefs", chromePref);
-
-
-
-
-
-
-//            if (ENV_TO_TEST) {
-//                LoggingPreferences logPrefs = new LoggingPreferences();
-//                logPrefs.enable(LogType.BROWSER, Level.INFO);
-//                logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
-//                chromeOptions.setCapability("goog:loggingPrefs", logPrefs.toJson());
-//                driverContainer.set(new ChromeDriver(chromeOptions));
-//
-//            } else {
-//                LoggingPreferences logPrefs = new LoggingPreferences();
-//                logPrefs.enable(LogType.BROWSER, Level.INFO);
-//                logPrefs.enable(LogType.PERFORMANCE, Level.INFO);
-//                chromeOptions.setCapability("goog:loggingPrefs", logPrefs.toJson());
-//                driverContainer.set(new RemoteWebDriver(new URL(gridURL), chromeOptions));
-//            }
-//            driverContainer.get().manage().window().maximize();
+            setChromeOptionsForLocal();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-
-
-        RemoteWebDriver driver = driverContainer.get();
 
         driver.get("https://www.telesport.co.il/%D7%A9%D7%99%D7%93%D7%95%D7%A8%D7%99%20%D7%A1%D7%A4%D7%95%D7%A8%D7%98");
 
@@ -337,8 +264,8 @@ public class SyncGamesForApplication {
                 }
             }
         }
-        driverContainer.get().close();
-        driverContainer.get().quit();
+        driver.close();
+        driver.quit();
     }
 
     public static Date convertStringToDate(String time) throws Exception {
@@ -374,15 +301,6 @@ public class SyncGamesForApplication {
         c.setTime(sdf.parse(current));
         c.add(Calendar.DATE, increaseBy);  // number of days to add
         current = sdf.format(c.getTime());  // current is now the new date
-        return current;
-    }
-
-    public String remove1Week(String current, String format) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        Calendar c = Calendar.getInstance();
-        c.setTime(sdf.parse(current));
-        c.add(Calendar.DATE, -7);
-        current = sdf.format(c.getTime());
         return current;
     }
 
@@ -429,8 +347,8 @@ public class SyncGamesForApplication {
         //Get HH from combined string (index: 9 + 10)
         char index1 = isoFormat_start.charAt(9);
         char index2 = isoFormat_start.charAt(10);
-        String index1_s = "" + index1;
-        String index2_s = "" + index2;
+        String index1_s = String.valueOf(index1);
+        String index2_s = String.valueOf(index2);
 
         String index12 = index1_s + index2_s;
         int index12_i_upgraded_by_1 = 0;
@@ -514,5 +432,58 @@ public class SyncGamesForApplication {
         } catch (SQLException e) {
             throw e;
         }
+    }
+
+    private static void setChromeOptionsForLocal() throws Exception {
+        String chromedriverVersion = "127"; //Change it when Chrome version on local machine changes.
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Eyal Sooliman\\Desktop\\SELENIUM 4 CONFIGURATION HUB AND NODE\\hub\\" + chromedriverVersion + "\\chromedriver.exe");
+
+        // Set Chrome preferences
+        HashMap<String, Object> chromePref = new HashMap<>();
+        chromePref.put("credentials_enable_service", false);
+        chromePref.put("profile.password_manager_enabled", false);
+
+        // Set ChromeOptions
+        ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments("--no-sandbox");
+        chromeOptions.addArguments("--start-maximized", "--log-level=3", "--silent", "--disable-dev-shm-usage", "--remote-allow-origins=*");
+        chromeOptions.addArguments("--headless");
+        chromeOptions.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
+        chromeOptions.setExperimentalOption("prefs", chromePref);
+
+        // Create a WebDriver instance with ChromeOptions
+        driver = new ChromeDriver(chromeOptions);
+        // Set WebDriver instance to a container or variable
+
+        // Maximize browser window
+        driver.manage().window().maximize();
+    }
+
+    public String remove1Week(String current, String format) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        Calendar c = Calendar.getInstance();
+        c.setTime(sdf.parse(current));
+        c.add(Calendar.DATE, -7);
+        current = sdf.format(c.getTime());
+        return current;
+    }
+
+    private void executeNoTerminate(Runnable action) {
+        try {
+            action.run();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void afterMethod(ITestResult result, ITestContext context, Method method, XmlTest xmlTest, Object[] params) throws Exception {
+        try {
+            executeNoTerminate(driver::close);
+            executeNoTerminate(driver::quit);
+        } catch (Exception e) {
+            throw e;
+        }
+
     }
 }
