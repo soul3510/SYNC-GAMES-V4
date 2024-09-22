@@ -1,29 +1,21 @@
 package tests;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.logging.LogType;
-import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import org.testng.xml.XmlTest;
-
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class SyncGamesForApplication {
 
@@ -435,7 +427,7 @@ public class SyncGamesForApplication {
     }
 
     private static void setChromeOptionsForLocal() throws Exception {
-        String chromedriverVersion = "127"; //Change it when Chrome version on local machine changes.
+        String chromedriverVersion = "129"; //Change it when Chrome version on local machine changes.
         System.setProperty("webdriver.chrome.driver", "C:\\Users\\Eyal Sooliman\\Desktop\\SELENIUM 4 CONFIGURATION HUB AND NODE\\hub\\" + chromedriverVersion + "\\chromedriver.exe");
 
         // Set Chrome preferences
