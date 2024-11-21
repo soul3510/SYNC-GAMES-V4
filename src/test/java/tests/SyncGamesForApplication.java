@@ -427,7 +427,7 @@ public class SyncGamesForApplication {
     }
 
     private static void setChromeOptionsForLocal() throws Exception {
-        String chromedriverVersion = "129"; //Change it when Chrome version on local machine changes.
+        String chromedriverVersion = "131"; //Change it when Chrome version on local machine changes.
         System.setProperty("webdriver.chrome.driver", "C:\\Users\\Eyal Sooliman\\Desktop\\SELENIUM 4 CONFIGURATION HUB AND NODE\\hub\\" + chromedriverVersion + "\\chromedriver.exe");
 
         // Set Chrome preferences
