@@ -11,11 +11,9 @@ import java.util.Properties;
 
 public class EmailSender {
     public static void sendEmail(String bodyEmailMessage, String emailSubject) throws Exception {
-        ReadConfig readConfig = new ReadConfig();
-        Map<String, Object> config = readConfig.parseJsonToObject();
 
-        final String username = getConfigValue(config, "username");
-        final String password = getPasswordConfigValue(config, "password");
+        String username = System.getenv("username");
+        String password = System.getenv("password");
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -50,14 +48,5 @@ public class EmailSender {
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static String getConfigValue(Map<String, Object> config, String key) {
-        return config.get(key).toString();
-    }
-
-    private static String getPasswordConfigValue(Map<String, Object> config, String key) {
-        String password = config.get(key).toString();
-        return PasswordEncryption.decrypt(password);
     }
 }
