@@ -76,7 +76,14 @@ public class SyncGamesForApplication {
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
 
         // StringBuilder to compile the message
-        String messageBody = "Passed";
+        String messageBody;
+
+        if (passed) {
+             messageBody = "Sport Scan Live App Is Now Sync";
+        } else {
+             messageBody = "Failed To Sync Sport Scan Live App...\n" + errorMessage;
+        }
+
         System.out.println("Trying to send whatsup message with: " + messageBody);
 
         // Send WhatsApp message via Twilio
@@ -89,13 +96,6 @@ public class SyncGamesForApplication {
         // Print the message SID for confirmation
         System.out.println("WhatsApp Message sent with SID: " + message.getSid());
 
-
-
-        if (passed) {
-            EmailSender.sendEmail("Sync passed", "SYNC-GAMES-V4 - PASSED");
-        } else {
-            EmailSender.sendEmail("Sync failed\n " + errorMessage, "SYNC-GAMES-V4 - FAILED");
-        }
 
     }
 
