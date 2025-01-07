@@ -229,6 +229,10 @@ public class SyncGamesForApplication {
                         }
                     } catch (Exception e) {
                         throw new RuntimeException(e);
+                    }finally {
+                        driver.close();
+                        driver.quit();
+                        System.out.println("Done. ");
                     }
                 }
             }
@@ -283,13 +287,14 @@ public class SyncGamesForApplication {
                         }
                     } catch (Exception e) {
                         throw new RuntimeException(e);
+                    }finally {
+                        driver.close();
+                        driver.quit();
+                        System.out.println("Done. ");
                     }
                 }
             }
         }
-        driver.close();
-        driver.quit();
-        System.out.println("Done. ");
     }
 
     public static Date convertStringToDate(String time) throws Exception {
