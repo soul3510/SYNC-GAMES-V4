@@ -1,5 +1,8 @@
 package org.example;
 
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -51,6 +54,42 @@ public class SyncGamesForApplication {
             passed = false;
             errorMessage = e.getMessage();
         }
+
+
+
+
+
+
+
+
+
+
+
+
+        String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
+        String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
+        String FROM_WHATSAPP_NUMBER = "whatsapp:+14155238886"; // Twilio Sandbox WhatsApp number
+        String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
+
+
+        // Initialize Twilio
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+
+        // StringBuilder to compile the message
+        String messageBody = "Passed";
+        System.out.println("Trying to send whatsup message with: " + messageBody);
+
+        // Send WhatsApp message via Twilio
+        Message message = Message.creator(
+                new PhoneNumber(TO_WHATSAPP_NUMBER), // To number
+                new PhoneNumber(FROM_WHATSAPP_NUMBER), // From number (Twilio Sandbox)
+                messageBody // Message body
+        ).create();
+
+        // Print the message SID for confirmation
+        System.out.println("WhatsApp Message sent with SID: " + message.getSid());
+
+
 
         if (passed) {
             EmailSender.sendEmail("Sync passed", "SYNC-GAMES-V4 - PASSED");

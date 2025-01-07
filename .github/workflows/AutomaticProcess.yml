@@ -9,8 +9,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     env:
-      username: ${{ secrets.username }}
-      password: ${{ secrets.password }}
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TO_WHATSAPP_NUMBER: "whatsapp:+972508266273"
 
     steps:
       - name: Check out repository
