@@ -289,6 +289,7 @@ public class SyncGamesForApplication {
         }
         driver.close();
         driver.quit();
+        System.out.println("Done. ");
     }
 
     public static Date convertStringToDate(String time) throws Exception {
