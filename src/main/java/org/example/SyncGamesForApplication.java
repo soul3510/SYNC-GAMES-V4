@@ -26,7 +26,7 @@ public class SyncGamesForApplication {
 
     static String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
     static String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
-    static String FROM_WHATSAPP_NUMBER = "whatsapp:++12186950942"; // Twilio Sandbox WhatsApp number
+    static String FROM_WHATSAPP_NUMBER = "whatsapp:+12186950942"; // Twilio Sandbox WhatsApp number
     static String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
 
 
