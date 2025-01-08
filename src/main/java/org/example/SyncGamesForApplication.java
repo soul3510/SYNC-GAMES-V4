@@ -24,6 +24,11 @@ public class SyncGamesForApplication {
     protected static Connection conn = null;
     private static String completeDate;
 
+    static String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
+    static String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
+    static String FROM_WHATSAPP_NUMBER = "whatsapp:++12186950942"; // Twilio Sandbox WhatsApp number
+    static String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
+
 
     public static void main(String[] args) throws Exception {
         boolean passed = true;
@@ -73,13 +78,30 @@ public class SyncGamesForApplication {
             messageBody = "Failed To Sync Sport Scan Live App...\n\n" + errorMessage;
         }
 
-        System.out.println("Trying to send whatsup message with: " + messageBody);
+        sendWhatapp(messageBody);
+        sendSms(messageBody);
+    }
 
+
+    public static void sendSms(String finalMessage) {
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+        Message message = Message.creator(
+                new com.twilio.type.PhoneNumber("+972508266273"),
+                new com.twilio.type.PhoneNumber("+12186950942"),
+                finalMessage).create();
+        System.out.println(message.getSid());
+
+        // Print the message SID for confirmation
+        System.out.println("WhatsApp Message sent with SID: " + message.getSid());
+    }
+
+    public static void sendWhatapp(String finalMessage) {
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
         // Send WhatsApp message via Twilio
         Message message = Message.creator(
                 new PhoneNumber(TO_WHATSAPP_NUMBER), // To number
                 new PhoneNumber(FROM_WHATSAPP_NUMBER), // From number (Twilio Sandbox)
-                messageBody // Message body
+                finalMessage // Message body
         ).create();
 
         // Print the message SID for confirmation
