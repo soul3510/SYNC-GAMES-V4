@@ -103,56 +103,17 @@ public class SyncGamesForApplication {
             }
         });
 
-        // Positive keywords in Hebrew
-        String[] positiveKeywords = {
-                "הצלחה", "מכירה", "נבחר ע\"י", "התחלת טיפול", "תוצאות ניסויי", "זכייה", "קבלת אישור"
-        };
 
-        // Build the table structure
-        StringBuilder tableBuilder = new StringBuilder();
-        tableBuilder.append("<table border='1' style='border-collapse:collapse; width:100%; text-align:right; direction:rtl;'>");
-        tableBuilder.append("<tr style='background-color:#f2f2f2;'>")
-                .append("<th>תאריך</th>")
-                .append("<th>חברה</th>")
-                .append("<th>הודעה</th>")
-                .append("</tr>");
-
-        String[] rows = finalMessage.split("\n\n");
-        for (String row : rows) {
-            String[] columns = row.split("\n");
-            if (columns.length == 3) {
-                String message = columns[2];
-
-                // Check for positive keywords in the message
-                boolean containsPositiveKeyword = false;
-                for (String keyword : positiveKeywords) {
-                    if (message.contains(keyword)) {
-                        containsPositiveKeyword = true;
-                        break;
-                    }
-                }
-
-                // Highlight the row if a positive keyword is found
-                String rowStyle = containsPositiveKeyword ? "background-color:#d4f4d2;" : "";
-
-                tableBuilder.append("<tr style='").append(rowStyle).append("'>")
-                        .append("<td>").append(columns[0]).append("</td>")
-                        .append("<td>").append(columns[1]).append("</td>")
-                        .append("<td>").append(message).append("</td>")
-                        .append("</tr>");
-            }
-        }
-        tableBuilder.append("</table>");
 
         // Create email message
-        javax.mail.Message message = new MimeMessage(session);
+        Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(from));
         message.setRecipients(
                 Message.RecipientType.TO, InternetAddress.parse(to));
-        message.setSubject(IsraelTime.getCurrentTime() + " - מאיה הודעות מתפרצות");
+        message.setSubject(IsraelTime.getCurrentTime() + " - GAME SYNC");
         message.setHeader("Content-Type", "text/html; charset=UTF-8");
         message.setContent(
-                "<h1 style='direction:rtl;'>התראות מאיה</h1>" + tableBuilder.toString(),
+                "<h1>Notifications</h1>" + finalMessage.toString(),
                 "text/html; charset=UTF-8"
         );
 
