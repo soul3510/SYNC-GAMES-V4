@@ -113,7 +113,7 @@ public class SyncGamesForApplication {
         message.setSubject(IsraelTime.getCurrentTime() + " - GAME SYNC");
         message.setHeader("Content-Type", "text/html; charset=UTF-8");
         message.setContent(
-                "<h1>Notifications</h1>" + finalMessage.toString(),
+                "<h1>" + finalMessage.toString() + "</h1>",
                 "text/html; charset=UTF-8"
         );
 
